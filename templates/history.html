@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>Historial</h2>
+<form method="get" class="row gy-2 gx-3 align-items-center mb-3">
+  <div class="col-auto">
+    <label class="form-label" for="mes">Mes</label>
+    <select class="form-select" id="mes" name="mes">
+      <option value="">Todos</option>
+      {% for i in range(1,13) %}
+      <option value="{{ i }}">{{ i }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <label class="form-label" for="ano">Año</label>
+    <input type="number" class="form-control" id="ano" name="ano" value="{{ request.args.get('ano','') }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('exportar', mes=request.args.get('mes'), ano=request.args.get('ano')) }}" class="btn btn-success">Descargar CSV</a>
+  </div>
+</form>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Prof. Ausente</th>
+      <th>Asignatura Ausente</th>
+      <th>Día Ausente</th>
+      <th>Bloques Ausente</th>
+      <th>Prof. Reemplazo</th>
+      <th>Asignatura Reemplazo</th>
+      <th>Día Reemplazo</th>
+      <th>Bloques Reemplazo</th>
+      <th>Estado</th>
+      <th>Fecha Registro</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in registros %}
+    <tr>
+      <td>{{ r[1] }}</td>
+      <td>{{ r[2] }}</td>
+      <td>{{ r[3] }}</td>
+      <td>{{ r[4] }}</td>
+      <td>{{ r[5] }}</td>
+      <td>{{ r[6] }}</td>
+      <td>{{ r[7] }}</td>
+      <td>{{ r[8] }}</td>
+      <td>{{ r[9] }}</td>
+      <td>{{ r[10] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
