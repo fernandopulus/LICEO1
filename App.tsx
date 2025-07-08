@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { AbsenceRecord } from './types';
 import AbsenceForm from './components/AbsenceForm';
@@ -7,7 +6,6 @@ import ReportGenerator from './components/ReportGenerator';
 import { Header } from './components/ui/Header';
 import { Footer } from './components/ui/Footer';
 import Dashboard from './components/Dashboard';
-
 import { db } from './firebaseConfig';
 import { collection, getDocs, addDoc, Timestamp } from 'firebase/firestore';
 
@@ -18,40 +16,73 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchRecords = async () => {
       try {
+        console.log("🔵 Cargando registros desde Firestore...");
         const snapshot = await getDocs(collection(db, 'reemplazos'));
         const data = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as AbsenceRecord[];
+        console.log("✅ Registros cargados:", data.length);
         setRecords(data);
       } catch (error) {
-        console.error("Error loading records from Firestore", error);
+        console.error("❌ Error loading records from Firestore", error);
       }
     };
-
     fetchRecords();
   }, []);
 
+  // Función de prueba para verificar Firebase
+  const testFirebase = async () => {
+    console.log("🧪 Probando Firebase directamente...");
+    try {
+      const testData = {
+        test: "Prueba directa",
+        timestamp: Timestamp.now(),
+        date: new Date().toISOString()
+      };
+      
+      const docRef = await addDoc(collection(db, "test"), testData);
+      console.log("✅ Prueba exitosa! ID:", docRef.id);
+      alert("¡Firebase funciona! Revisa la consola y tu base de datos");
+    } catch (error) {
+      console.error("❌ Error en prueba:", error);
+      alert("Error: " + error.message);
+    }
+  };
+
   const handleAddRecord = useCallback(async (data: Omit<AbsenceRecord, 'id' | 'status'>) => {
+    console.log("🔵 Iniciando guardado...");
+    console.log("📝 Datos recibidos:", data);
+    
     const status = data.absentSubject.trim().toLowerCase() === data.replacementSubject.trim().toLowerCase()
       ? "Hora realizada"
       : "Hora cubierta, pero no realizada";
-
+    
     const recordData = {
       ...data,
       status,
       timestamp: Timestamp.now(),
     };
-
+    
+    console.log("📦 Datos a guardar:", recordData);
+    console.log("🔥 DB instance:", db);
+    
     try {
+      console.log("⏳ Intentando guardar en Firestore...");
       const docRef = await addDoc(collection(db, "reemplazos"), recordData);
+      console.log("✅ Guardado exitoso! ID:", docRef.id);
+      
       const newRecord: AbsenceRecord = {
         id: docRef.id,
         ...recordData,
       };
+      
       setRecords(prevRecords => [newRecord, ...prevRecords]);
+      console.log("✅ Estado local actualizado");
+      
     } catch (error) {
-      console.error("Error saving record to Firestore", error);
+      console.error("❌ Error saving record to Firestore", error);
+      console.error("❌ Error details:", error.message);
     }
   }, []);
 
@@ -74,6 +105,17 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      
+      {/* Botón de prueba temporal - QUITAR DESPUÉS */}
+      <div className="container mx-auto p-4">
+        <button 
+          onClick={testFirebase} 
+          className="bg-red-500 text-white p-2 rounded mb-4"
+        >
+          🧪 Probar Firebase
+        </button>
+      </div>
+      
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
         <div className="mb-6">
           <div className="border-b border-slate-200">
@@ -83,7 +125,6 @@ const App: React.FC = () => {
             </nav>
           </div>
         </div>
-
         {view === 'registro' ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-1">
