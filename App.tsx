@@ -106,14 +106,19 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      {/* Botón de prueba temporal - QUITAR DESPUÉS */}
-      <div className="container mx-auto p-4">
-        <button 
-          onClick={testFirebase} 
-          className="bg-red-500 text-white p-2 rounded mb-4"
-        >
-          🧪 Probar Firebase
-        </button>
+      {/* BOTÓN DE PRUEBA TEMPORAL */}
+      <div className="bg-yellow-100 p-4 border-b">
+        <div className="container mx-auto">
+          <button 
+            onClick={testFirebase} 
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-bold"
+          >
+            🧪 PROBAR FIREBASE
+          </button>
+          <span className="ml-4 text-sm text-gray-600">
+            Haz clic aquí primero para probar la conexión
+          </span>
+        </div>
       </div>
       
       <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
