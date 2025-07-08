@@ -8,30 +8,31 @@ import { Header } from './components/ui/Header';
 import { Footer } from './components/ui/Footer';
 import Dashboard from './components/Dashboard';
 
+import { db } from './firebaseConfig';
+import { collection, getDocs, addDoc, Timestamp } from 'firebase/firestore';
+
 const App: React.FC = () => {
   const [records, setRecords] = useState<AbsenceRecord[]>([]);
   const [view, setView] = useState<'registro' | 'dashboard'>('registro');
 
   useEffect(() => {
-    try {
-      const storedRecords = localStorage.getItem('absenceRecords');
-      if (storedRecords) {
-        setRecords(JSON.parse(storedRecords));
+    const fetchRecords = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'reemplazos'));
+        const data = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as AbsenceRecord[];
+        setRecords(data);
+      } catch (error) {
+        console.error("Error loading records from Firestore", error);
       }
-    } catch (error) {
-      console.error("Error loading records from localStorage", error);
-    }
+    };
+
+    fetchRecords();
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('absenceRecords', JSON.stringify(records));
-    } catch (error) {
-      console.error("Error saving records to localStorage", error);
-    }
-  }, [records]);
-
-  const handleAddRecord = useCallback((data: Omit<AbsenceRecord, 'id' | 'status'>) => {
+  const handleAddRecord = useCallback(async (data: Omit<AbsenceRecord, 'id' | 'status'>) => {
     const status = data.absentSubject.trim().toLowerCase() === data.replacementSubject.trim().toLowerCase()
       ? "Hora realizada"
       : "Hora cubierta, pero no realizada";
@@ -42,7 +43,15 @@ const App: React.FC = () => {
       status,
     };
 
-    setRecords(prevRecords => [newRecord, ...prevRecords]);
+    try {
+      await addDoc(collection(db, "reemplazos"), {
+        ...newRecord,
+        timestamp: Timestamp.now(),
+      });
+      setRecords(prevRecords => [newRecord, ...prevRecords]);
+    } catch (error) {
+      console.error("Error saving record to Firestore", error);
+    }
   }, []);
 
   const NavButton: React.FC<{
