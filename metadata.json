@@ -1,0 +1,5 @@
+{
+  "name": "Registro de Reemplazos Docentes",
+  "description": "Una aplicación web moderna y minimalista para que el equipo de gestión del Liceo Industrial de Recoleta registre las ausencias y reemplazos de profesores, analice la cobertura de horas y genere informes detallados.",
+  "requestFramePermissions": []
+}
