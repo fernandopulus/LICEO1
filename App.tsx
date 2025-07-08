@@ -37,17 +37,18 @@ const App: React.FC = () => {
       ? "Hora realizada"
       : "Hora cubierta, pero no realizada";
 
-    const newRecord: AbsenceRecord = {
+    const recordData = {
       ...data,
-      id: `${new Date().toISOString()}-${Math.random()}`,
       status,
+      timestamp: Timestamp.now(),
     };
 
     try {
-      await addDoc(collection(db, "reemplazos"), {
-        ...newRecord,
-        timestamp: Timestamp.now(),
-      });
+      const docRef = await addDoc(collection(db, "reemplazos"), recordData);
+      const newRecord: AbsenceRecord = {
+        id: docRef.id,
+        ...recordData,
+      };
       setRecords(prevRecords => [newRecord, ...prevRecords]);
     } catch (error) {
       console.error("Error saving record to Firestore", error);
